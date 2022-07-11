@@ -66,9 +66,12 @@ app.post("/api/shorturl", (req, res) => {
       res.json({
         error: "Invalid URL",
       });
-    } else {
-      // console.log(address);
-      // console.log(family);
+    } else if (!address) {
+      console.log(err);
+      res.json({
+        error: "Invalid URL",
+      })
+    } else if (address) {
       try {
         let url = await Website.findOne({
           longUrl: sentUrl,
