@@ -8,6 +8,7 @@ const shortId = require("shortid");
 const e = require("express");
 const mongoose = require("mongoose");
 const dns = require("dns");
+const exp = require("constants");
 
 mongoose.connect(
   "mongodb+srv://joshuah91:JOSEphine@cluster0.5ppqk2h.mongodb.net/cluster0?retryWrites=true&w=majority",
@@ -32,8 +33,8 @@ const webSchema = new WebsiteSchema({
 
 const Website = mongoose.model("Website", webSchema);
 
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(bodyParser.json());
+app.use(express.urlencoded({ extended: false }));
+app.use(express.json());
 
 // Basic Configuration
 const port = process.env.PORT || 3000;
@@ -47,9 +48,9 @@ app.get("/", function (req, res) {
 });
 
 // Your first API endpoint
-// app.get("/api/hello", function (req, res) {
-//   res.json({ greeting: "hello API" });
-// });
+app.get("/api/hello", function (req, res) {
+  res.json({ greeting: "hello API" });
+});
 
 app.post("/api/shorturl", (req, res) => {
   const sentUrl = req.body.url;
@@ -62,12 +63,12 @@ app.post("/api/shorturl", (req, res) => {
 
   dns.lookup(dnsSentUrl, options, async (err, address, family) => {
     if (err) {
-      console.log(err);
+      // console.log(err);
       res.json({
         error: "Invalid URL",
       });
     } else if (!address) {
-      console.log(err);
+      // console.log(err);
       res.json({
         error: "Invalid URL",
       })
@@ -92,7 +93,7 @@ app.post("/api/shorturl", (req, res) => {
             if (err) {
               return console.error(err);
             } else {
-              // console.log(data);
+              console.log(data);
             }
           });
           res.json({
