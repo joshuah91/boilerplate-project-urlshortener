@@ -7,6 +7,7 @@ const urlExists = require("url-exists");
 const shortId = require("shortid");
 const e = require("express");
 const mongoose = require("mongoose");
+const dns = require("dns");
 
 mongoose.connect(
   "mongodb+srv://joshuah91:JOSEphine@cluster0.5ppqk2h.mongodb.net/cluster0?retryWrites=true&w=majority",
@@ -15,6 +16,12 @@ mongoose.connect(
     useUnifiedTopology: true,
   }
 );
+
+const options = {
+  // Setting family as 6 i.e. IPv6
+  family: 6,
+  hints: dns.ADDRCONFIG | dns.V4MAPPED,
+};
 
 const WebsiteSchema = mongoose.Schema;
 
@@ -46,24 +53,28 @@ app.get("/", function (req, res) {
 
 app.post("/api/shorturl", (req, res) => {
   const sentUrl = req.body.url;
-  console.log(sentUrl);
-  // if (validUrl.isUri(longUrl)) {
-  //   res.json({
-  //     error: "Invalid Hostname",
-  //   });
-  // }
+  // console.log(sentUrl);
   const urlCode = shortId.generate();
 
-  urlExists(sentUrl, async (err, exist) => {
-    if (exist) {
-      console.log(exist);
+  const dnsSentUrl = sentUrl.slice(8);
+  // console.log(dnsSentUrl);
+
+  dns.lookup(dnsSentUrl, options, async (err, address, family) => {
+    if (err) {
+      console.log(err);
+      res.json({
+        error: "Invalid URL",
+      });
+    } else {
+      // console.log(address);
+      // console.log(family);
       try {
         let url = await Website.findOne({
           longUrl: sentUrl,
           // shortCode: urlCode,
         });
         if (url) {
-          console.log(url);
+          // console.log(url);
           res.json({
             original_url: url.longUrl,
             short_url: url.shortCode,
@@ -77,7 +88,7 @@ app.post("/api/shorturl", (req, res) => {
             if (err) {
               return console.error(err);
             } else {
-              console.log(data);
+              // console.log(data);
             }
           });
           res.json({
@@ -86,13 +97,8 @@ app.post("/api/shorturl", (req, res) => {
           });
         }
       } catch (err) {
-        console.log(err);
+        console.log("err:", err);
       }
-    } else {
-      console.log(err);
-      res.json({
-        error: "Invalid URL",
-      });
     }
   });
 });
