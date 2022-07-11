@@ -27,7 +27,7 @@ const WebsiteSchema = mongoose.Schema;
 
 const webSchema = new WebsiteSchema({
   longUrl: { type: String, required: true },
-  shortCode: { type: String, required: true },
+  shortCode: { type: Number, required: true },
 });
 
 const Website = mongoose.model("Website", webSchema);
@@ -54,7 +54,8 @@ app.get("/", function (req, res) {
 app.post("/api/shorturl", (req, res) => {
   const sentUrl = req.body.url;
   // console.log(sentUrl);
-  const urlCode = shortId.generate();
+  const urlCode = Math.floor(Math.random() * 100000) + 1;
+  console.log(urlCode);
 
   const dnsSentUrl = sentUrl.slice(8);
   // console.log(dnsSentUrl);
